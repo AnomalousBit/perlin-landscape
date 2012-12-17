@@ -32,14 +32,14 @@
 
         scene = new THREE.Scene();
 
-        light = new THREE.AmbientLight( 0xffffff ); 
-        light.position = new THREE.Vector3(200, 800, 2000);
+        light = new THREE.PointLight( 0xffffff ); 
+        light.position = new THREE.Vector3(200, 1800, 2000);
         scene.add( light );
 
 
 
 
-        var vertexArray = generateMeshVertexArray(28,28);
+        var vertexArray = generateMeshVertexArray(256,256);
         material = new THREE.MeshLambertMaterial( { color: 0x0077dd, doubleSided: true } );
         terrain = new THREE.Mesh(buildGeomObject(vertexArray), material );
 
@@ -47,15 +47,17 @@
         scene.add(terrain);
 
 
+        /*
         geometry = new THREE.CubeGeometry( 200, 200, 200 );
         //material = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true } );
         mesh = new THREE.Mesh( geometry, material );
         scene.add( mesh );
+        */
 
 
 
 
-        renderer = new THREE.CanvasRenderer();
+        renderer = new THREE.WebGLRenderer();
         renderer.setSize( window.innerWidth, window.innerHeight );
 
         document.body.appendChild( renderer.domElement );
@@ -71,6 +73,11 @@
 
         delta = clock.getDelta();
         controls.update(delta);
+
+        /*
+        light.position.x += -8;
+        light.position.z += 8;
+        */
 
         /*
         terrain.rotation.x += 0.01;
@@ -96,7 +103,7 @@
             for (var j = 0; j < height; j++)
             {
                 vertexArray[i][j] = new THREE.Vector3(i*spaceInbetweenGridPoints
-                                                     ,Math.random() * 1000000000 % 40
+                                                     ,Math.random() * 1000000000 % 140
                                                      ,j*spaceInbetweenGridPoints); 
             }
         }
