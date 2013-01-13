@@ -2,6 +2,8 @@
 
 <head>
     <script src="js/three.min.js"></script>
+    <script src="js/seedrandom.js"></script>
+    <script src="js/perlinNoise.js"></script>
     <script src="js/controls/FirstPersonControls.js"></script>
 </head>
 
@@ -12,6 +14,7 @@
     var geometry, material, mesh;
     var light, terrain;
     var controls, clock, delta;
+    var light2;
 
 
     init();
@@ -37,9 +40,13 @@
         scene.add( light );
 
 
+        light2 = new THREE.PointLight( 0xffffff ); 
+        light2.position = new THREE.Vector3(-14000.0, 1800.0, 14000.0);
+        scene.add( light2 );
 
 
-        var vertexArray = generateMeshVertexArray(256,256);
+
+        var vertexArray = generateMeshVertexArray(40,40);
         material = new THREE.MeshLambertMaterial( { color: 0x0077dd, doubleSided: true } );
         terrain = new THREE.Mesh(buildGeomObject(vertexArray), material );
 
@@ -93,8 +100,10 @@
 
     function generateMeshVertexArray(width, height)
     {
-        var spaceInbetweenGridPoints = 100;
+        var spaceInbetweenGridPoints = 20;
         var vertexArray = new Array();
+
+        var perlinNoiseGen = new perlinNoise();
 
         for (var i = 0; i < width; i++)
         { 
@@ -103,7 +112,7 @@
             for (var j = 0; j < height; j++)
             {
                 vertexArray[i][j] = new THREE.Vector3(i*spaceInbetweenGridPoints
-                                                     ,Math.random() * 1000000000 % 140
+                                                     ,perlinNoiseGen.perlinNoise(i*spaceInbetweenGridPoints, j*spaceInbetweenGridPoints)
                                                      ,j*spaceInbetweenGridPoints); 
             }
         }
