@@ -1,12 +1,12 @@
 
-// perlinNoise is an object for building 3 dimensional perlin-based noise
+// PerlinNoise is an object for building 3 dimensional perlin-based noise
 //
 // it comes complete with cached random number generator needed to reproduce random
 // values when provided the same argument
 //
 // requires: cachedRandom.js
 
-function perlinNoise()
+function PerlinNoise()
 {
     // noise profile & controls
     this.maxAmplitude = 280; // the largest number returned by generateNoise()
@@ -21,7 +21,7 @@ function perlinNoise()
 
 // this method is used to produce a random value based on a particular vertex
 // on a two dimensional cartesian plane
-perlinNoise.prototype.generateNoise = function(x, y)
+PerlinNoise.prototype.GenerateNoise = function(x, y)
 {
     var randomFloat = this.cachedRandom.Random(x, y) * this.wholeNumberSpace % this.maxAmplitude;
     return randomFloat;
@@ -29,20 +29,19 @@ perlinNoise.prototype.generateNoise = function(x, y)
 
 
 //TODO: Nth neighbor based smoothing (recursive? better iterative?)
-perlinNoise.prototype.smoothNoise = function(x, y)
+PerlinNoise.prototype.SmoothNoise = function(x, y)
 {
     var points = []; //declare an empty array, jslint insists on this syntax
 
-    points.push(this.generateNoise(x-this.gridUnit, y+this.gridUnit)); //top left
-    points.push(this.generateNoise(x              , y+this.gridUnit)); //top middle
-    points.push(this.generateNoise(x+this.gridUnit, y+this.gridUnit)); //top right
-    points.push(this.generateNoise(x-this.gridUnit, y              )); //middle left
-    points.push(this.generateNoise(x              , y              )); //center
-    points.push(this.generateNoise(x              , y              )); //center again for twice the weight
-    points.push(this.generateNoise(x+this.gridUnit, y              )); //middle right
-    points.push(this.generateNoise(x-this.gridUnit, y-this.gridUnit)); //bottom left
-    points.push(this.generateNoise(x              , y-this.gridUnit)); //bottom middle
-    points.push(this.generateNoise(x+this.gridUnit, y-this.gridUnit)); //bottom right
+    points.push(this.GenerateNoise(x-this.gridUnit, y+this.gridUnit)); //top left
+    points.push(this.GenerateNoise(x              , y+this.gridUnit)); //top middle
+    points.push(this.GenerateNoise(x+this.gridUnit, y+this.gridUnit)); //top right
+    points.push(this.GenerateNoise(x-this.gridUnit, y              )); //middle left
+    points.push(this.GenerateNoise(x              , y              )); //center
+    points.push(this.GenerateNoise(x+this.gridUnit, y              )); //middle right
+    points.push(this.GenerateNoise(x-this.gridUnit, y-this.gridUnit)); //bottom left
+    points.push(this.GenerateNoise(x              , y-this.gridUnit)); //bottom middle
+    points.push(this.GenerateNoise(x+this.gridUnit, y-this.gridUnit)); //bottom right
 
     var sum = 0.0;
 
@@ -80,7 +79,7 @@ perlinNoise.prototype.smoothNoise = function(x, y)
 
 // Uses fast, yet accurate cosine interpolation between points a and b. 
 // Sample is the position of the sampling between 0 and 1, if sample is 0.0 then a is returned, 1.0 returns b
-perlinNoise.prototype.cosineInterpolation = function(a, b, sample)
+PerlinNoise.prototype.CosineInterpolation = function(a, b, sample)
 {
 	var samplePi = sample * 3.1415927;
 	var samplePosition = (1 - Math.cos(samplePi)) * 0.5;
@@ -91,7 +90,7 @@ perlinNoise.prototype.cosineInterpolation = function(a, b, sample)
 
 
 //generates interpolated, smoothed noise for the point at x,y
-perlinNoise.prototype.interpolateNoise = function(x, y)
+PerlinNoise.prototype.InterpolateNoise = function(x, y)
 {
       var integer_X = Math.floor(x); //all numbers in javascript are floats, no type casting involved!
       var fractional_X = x - integer_X;
@@ -99,38 +98,35 @@ perlinNoise.prototype.interpolateNoise = function(x, y)
       var integer_Y    = Math.floor(y);
       var fractional_Y = y - integer_Y;
 
-      var point1 = this.smoothNoise(integer_X,     integer_Y);
-      var point2 = this.smoothNoise(integer_X + 20, integer_Y);
-      var point3 = this.smoothNoise(integer_X,     integer_Y + 20);
-      var point4 = this.smoothNoise(integer_X + 20, integer_Y + 20);
+      var point1 = this.SmoothNoise(integer_X,     integer_Y);
+      var point2 = this.SmoothNoise(integer_X + 20, integer_Y);
+      var point3 = this.SmoothNoise(integer_X,     integer_Y + 20);
+      var point4 = this.SmoothNoise(integer_X + 20, integer_Y + 20);
 
-      var i1 = this.cosineInterpolation(point1 , point2 , fractional_X);
-      var i2 = this.cosineInterpolation(point3 , point4 , fractional_X);
+      var i1 = this.CosineInterpolation(point1 , point2 , fractional_X);
+      var i2 = this.CosineInterpolation(point3 , point4 , fractional_X);
 
-      return this.cosineInterpolation(i1 , i2 , fractional_Y);
+      return this.CosineInterpolation(i1 , i2 , fractional_Y);
 };
 
 
 
-perlinNoise.prototype.perlinNoise = function(x, y)
+PerlinNoise.prototype.PerlinNoise = function(x, y)
 {
       var total = 0;
       var persistence = 0.95;
-      var numOctaves = 2; //number of octaves - 1
+      var numOctaves = 4; //number of octaves - 1
 
       var i; //jslint requires the declaration to be outside of the for statement
 
-      for (i = 1; i < numOctaves; i++)
+      for (i = 0; i <= numOctaves; i++)
       { 
           frequency = Math.pow(2,i);
           amplitude = Math.pow(persistence,i);
           
 
-          var octaveSum = this.interpolateNoise(x * frequency, y * frequency) * amplitude;
-          total = total + octaveSum;
+          total = total + this.InterpolateNoise(x * frequency, y * frequency) * amplitude;
       }
 
       return total;
 };
-
-//end perlinNoise object implementation

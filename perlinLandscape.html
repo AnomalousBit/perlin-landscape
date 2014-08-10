@@ -34,9 +34,9 @@
     function init() {
 
         camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.05, 100000 );
-        camera.position.x = 300;
-        camera.position.z = 1000;
-        camera.rotation.y = 1.25;
+//        camera.position.x = 300;
+//        camera.position.z = 1000;
+//        camera.rotation.y = 1.25;
         // -338, 90, 400 is the center of the terrain
 
         scene = new THREE.Scene();
@@ -57,12 +57,17 @@
         scene.add( light2 );
 
 
+		var terrainSize = 200;
 
-        var vertexArray = generateMeshVertexArray(200,200);
+        var vertexArray = generateMeshVertexArray(terrainSize,terrainSize);
         material = new THREE.MeshLambertMaterial( { color: 0x0077dd, doubleSided: true } );
         terrain = new THREE.Mesh(buildGeomObject(vertexArray), material );
 
+		//flip the terrain over
         terrain.rotation.z = Math.PI;
+		terrain.position.x += 10*terrainSize
+		terrain.position.z -= 10*terrainSize
+
         scene.add(terrain);
 
 
@@ -113,10 +118,10 @@
 
     function generateMeshVertexArray(width, height)
     {
-        var spaceInbetweenGridPoints = 20; //WARNING: must be identical with perlinNoise.gridUnit, fragile!!!
+        var spaceInbetweenGridPoints = 20; //WARNING: must be identical with PerlinNoise.GridUnit, fragile!!!
         var vertexArray = new Array();
 
-        var perlinNoiseGen = new perlinNoise();
+        var perlinNoiseGen = new PerlinNoise();
 
         for (var i = 0; i < width; i++)
         { 
@@ -125,7 +130,7 @@
             for (var j = 0; j < height; j++)
             {
                 vertexArray[i][j] = new THREE.Vector3(i*spaceInbetweenGridPoints
-                                                     ,perlinNoiseGen.perlinNoise(i*spaceInbetweenGridPoints, j*spaceInbetweenGridPoints)
+                                                     ,perlinNoiseGen.PerlinNoise(i*spaceInbetweenGridPoints, j*spaceInbetweenGridPoints)
                                                      ,j*spaceInbetweenGridPoints); 
             }
         }
